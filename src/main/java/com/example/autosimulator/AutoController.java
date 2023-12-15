@@ -1,9 +1,12 @@
 package com.example.autosimulator;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -11,67 +14,85 @@ import javafx.scene.media.MediaPlayer;
 import java.io.File;
 
 public class AutoController {
+    private static final double MAX_TANK_FILL = 1;
+    private Auto auto = new Auto();
 
     @FXML
-    public Button Hupen;
-    @FXML
-    public ChoiceBox<String> Autoauswählen;
+    public ChoiceBox<String> autoAuswählen;
 
     @FXML
-    public ProgressBar Tankstand;
+    public ProgressBar tankstand;
 
     @FXML
-    protected void OnClickTanken() {
-        String selectedCar = Autoauswählen.getValue();
-        double tankFill = getTankFill(selectedCar);
-        Tankstand.setProgress(tankFill);
+    public TextField kmh;
+
+    @FXML
+    public TextField gangAnzeige;
+
+    @FXML
+    public void initialize() {
+        autoAuswählen.getItems().add("Opel, 90 PS");
+        autoAuswählen.getItems().add("Porsche, 250 PS");
+        autoAuswählen.getItems().add("Ferrari, 370 PS");
+
+        autoAuswählen.setOnAction(event -> {
+            String selectedCar = autoAuswählen.getValue();
+            auto.setPsBasedOnSelection(selectedCar);
+        });
     }
 
     @FXML
-    protected void OnClickHupen() {
-        String soundFile = "/Users/lennyamstutz/Documents/ük/OOP/Sounds/AutoHupen.mp3";
+    protected void onClickTanken() {
+        String selectedCar = autoAuswählen.getValue();
+        int tankFill = auto.getTankFuellstand(selectedCar);
 
+        double normalizedTankFill = (double) tankFill / MAX_TANK_FILL;
+
+
+        normalizedTankFill = Math.min(1.0, Math.max(0.0, normalizedTankFill));
+
+        tankstand.setProgress(normalizedTankFill);
+    }
+
+
+
+    @FXML
+    protected void onClickHupen() {
+        String soundFile = "/Users/lennyamstutz/Documents/ük/OOP/Sounds/AutoHupen.mp3";
         Media sound = new Media(new File(soundFile).toURI().toString());
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();
     }
 
     @FXML
-    protected void OnClickAutoöffnen() {
-        String selectedCar = Autoauswählen.getValue();
-        double tankFill = getTankFill(selectedCar);
+    protected void onClickAutoÖffnen() {
+        String selectedCar = autoAuswählen.getValue();
+        int tankFill = auto.getTankFuellstand(selectedCar);
 
-        if (tankFill > 0) {
+        if (selectedCar != null && tankFill >= 1) {
             String soundFile = "/Users/lennyamstutz/Documents/ük/OOP/Sounds/StartaCar.mp3";
-
             Media sound = new Media(new File(soundFile).toURI().toString());
             MediaPlayer mediaPlayer = new MediaPlayer(sound);
             mediaPlayer.play();
         } else {
-            System.out.println("auto startet nicht");
+            System.out.println("Bitte befülle den Tank bevor du das Auto startest");
         }
     }
 
 
     @FXML
-    private double getTankFill(String selectedCar) {
-        if ("Opel, 90 PS".equals(selectedCar)) {
-            return 1;
-        } else if ("Porsche, 250 PS".equals(selectedCar)) {
-            return 1;
-        } else if ("Ferrari, 370 PS".equals(selectedCar)) {
-            return 1;
-        }
-        return 0.0;
+    protected void onClickGasgeben() {
+        auto.erhöheGeschwindigkeit();
+        kmh.setText(String.valueOf(auto.getGeschwindigkeit()));
+        auto.setGeschwindigkeit(auto.getGeschwindigkeit());
+        gangAnzeige.setText(String.valueOf(auto.getAktuellerGang()));
     }
 
     @FXML
-    public void initialize() {
-        Autoauswählen.getItems().add("Opel, 90 PS");
-        Autoauswählen.getItems().add("Porsche, 250 PS");
-        Autoauswählen.getItems().add("Ferrari, 370 PS");
+    protected void onClickBremsen() {
+        auto.verlangsameGeschwindigkeit();
+        kmh.setText(String.valueOf(auto.getGeschwindigkeit()));
+        gangAnzeige.setText(String.valueOf(auto.getAktuellerGang()));
     }
 
-    public void getTankFill(MouseEvent mouseEvent) {
-    }
 }
