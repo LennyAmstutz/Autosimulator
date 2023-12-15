@@ -23,7 +23,7 @@
       <Button layoutX="7.0" layoutY="71.0" mnemonicParsing="false" onAction="#onClickAutoÖffnen" prefHeight="35.0" prefWidth="75.0" text="Schlüssel" />
       <Button layoutX="7.0" layoutY="118.0" mnemonicParsing="false" onAction="#onClickHupen" prefHeight="35.0" prefWidth="75.0" text="Hupe" />
       <Button layoutX="7.0" layoutY="165.0" mnemonicParsing="false" onAction="#onClickTanken" prefHeight="35.0" prefWidth="75.0" text="Tanken" />
-      <ProgressBar fx:id="Tankstand" layoutX="89.0" layoutY="174.0" prefHeight="26.0" prefWidth="260.0" progress="0.0" />
+      <ProgressBar fx:id="tankstand" layoutX="89.0" layoutY="174.0" prefHeight="26.0" prefWidth="260.0" progress="0.0" />
       <Label layoutX="93.0" layoutY="68.0" prefHeight="20.0" prefWidth="54.0" text="km/h">
          <font>
             <Font size="14.0" />

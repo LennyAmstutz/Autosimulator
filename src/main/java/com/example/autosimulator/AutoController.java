@@ -15,10 +15,10 @@ import java.io.File;
 
 public class AutoController {
     private static final double MAX_TANK_FILL = 1;
-    private Auto auto = new Auto();
+    private Auto selectedCar;
 
     @FXML
-    public ChoiceBox<String> autoAuswählen;
+    public ChoiceBox<Auto> autoAuswählen;
 
     @FXML
     public ProgressBar tankstand;
@@ -31,68 +31,61 @@ public class AutoController {
 
     @FXML
     public void initialize() {
-        autoAuswählen.getItems().add("Opel, 90 PS");
-        autoAuswählen.getItems().add("Porsche, 250 PS");
-        autoAuswählen.getItems().add("Ferrari, 370 PS");
+        autoAuswählen.getItems().add(new Auto("Opel", 90));
+        autoAuswählen.getItems().add(new Auto("Porsche", 250));
+        autoAuswählen.getItems().add(new Auto("Ferrari", 370));
 
         autoAuswählen.setOnAction(event -> {
-            String selectedCar = autoAuswählen.getValue();
-            auto.setPsBasedOnSelection(selectedCar);
+            selectedCar = autoAuswählen.getValue();
+            AktualisiereInstrumente();
         });
     }
 
     @FXML
     protected void onClickTanken() {
-        String selectedCar = autoAuswählen.getValue();
-        int tankFill = auto.getTankFuellstand(selectedCar);
-
-        double normalizedTankFill = (double) tankFill / MAX_TANK_FILL;
+        double tankFill = 0;
 
 
-        normalizedTankFill = Math.min(1.0, Math.max(0.0, normalizedTankFill));
+        tankFill = selectedCar.getTankFuellstand();
 
-        tankstand.setProgress(normalizedTankFill);
+
+        tankstand.setProgress(tankFill);
     }
 
 
 
     @FXML
     protected void onClickHupen() {
-        String soundFile = "/Users/lennyamstutz/Documents/ük/OOP/Sounds/AutoHupen.mp3";
-        Media sound = new Media(new File(soundFile).toURI().toString());
-        MediaPlayer mediaPlayer = new MediaPlayer(sound);
-        mediaPlayer.play();
+        selectedCar.hupe();
     }
 
     @FXML
     protected void onClickAutoÖffnen() {
-        String selectedCar = autoAuswählen.getValue();
-        int tankFill = auto.getTankFuellstand(selectedCar);
+        if (selectedCar != null) {
 
-        if (selectedCar != null && tankFill >= 1) {
-            String soundFile = "/Users/lennyamstutz/Documents/ük/OOP/Sounds/StartaCar.mp3";
-            Media sound = new Media(new File(soundFile).toURI().toString());
-            MediaPlayer mediaPlayer = new MediaPlayer(sound);
-            mediaPlayer.play();
-        } else {
-            System.out.println("Bitte befülle den Tank bevor du das Auto startest");
+            selectedCar.starteMotor();
+
         }
     }
 
 
     @FXML
     protected void onClickGasgeben() {
-        auto.erhöheGeschwindigkeit();
-        kmh.setText(String.valueOf(auto.getGeschwindigkeit()));
-        auto.setGeschwindigkeit(auto.getGeschwindigkeit());
-        gangAnzeige.setText(String.valueOf(auto.getAktuellerGang()));
+
+        selectedCar.gibGas();
+        AktualisiereInstrumente();
     }
 
     @FXML
     protected void onClickBremsen() {
-        auto.verlangsameGeschwindigkeit();
-        kmh.setText(String.valueOf(auto.getGeschwindigkeit()));
-        gangAnzeige.setText(String.valueOf(auto.getAktuellerGang()));
+        selectedCar.bremse();
+
+        AktualisiereInstrumente();
     }
 
+    private void AktualisiereInstrumente() {
+
+        kmh.setText(String.valueOf(selectedCar.getAktuelleGeschwindigkeit()));
+        gangAnzeige.setText(String.valueOf(selectedCar.getAktuellerGang()));
+    }
 }
